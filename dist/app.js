@@ -222,6 +222,7 @@ function renderOverview() {
   $("far-value").textContent = format(r?.[2]);
   $("gap-value").textContent = r ? signed(r[1] - r[2]) : "—";
   $("weather").innerHTML = weatherMarkup(r);
+  renderConditions();
   renderRanking();
   renderMarkers();
 }
@@ -633,39 +634,23 @@ function csvDownload(filename, headers, rows) {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-async function preset(kind) {
-  const buttons = [...document.querySelectorAll("[data-preset]")];
-  buttons.forEach((b) => (b.disabled = true));
-  try {
-    const year = $("date").value.slice(0, 4);
-    const month = Number($("date").value.slice(5, 7));
-    const data = await loadYear(year);
-    const summerMonths = [6, 7, 8];
-    // 여름 아침은 조회 월이 여름이 아니면 같은 연도의 여름(6~8월) 전체에서 찾는다.
-    const months =
-      kind === "summer" && !summerMonths.includes(month) ? summerMonths : [month];
-    const candidates = data.filter((r) => {
-      if (!months.includes(Number(r[0].slice(5, 7)))) return false;
-      if (kind === "weak") return r[3] !== null && r[3] < 1;
-      if (kind === "summer") return r[0].slice(11, 13) === "07";
-      return true;
-    });
-    const chosen = candidates.reduce(
-      (best, r) => (!best || r[1] - r[2] > best[1] - best[2] ? r : best),
-      null,
+// 선택한 시각이 해당하는 조건을 태그로 표시한다.
+const LARGE_GAP = 4; // 인접 − 비인접 중앙값 차이(μg/m³). 전체 관측의 상위 약 10%.
+const conditionChecks = {
+  weak: (r) => r[3] !== null && r[3] < 1,
+  summer: (r) =>
+    [6, 7, 8].includes(Number(r[0].slice(5, 7))) && r[0].slice(11, 13) === "07",
+  gap: (r) => r[1] !== null && r[2] !== null && r[1] - r[2] >= LARGE_GAP,
+};
+function renderConditions() {
+  const r = state.record;
+  for (const tag of document.querySelectorAll("[data-condition]")) {
+    const on = Boolean(r) && conditionChecks[tag.dataset.condition](r);
+    tag.classList.toggle("on", on);
+    tag.setAttribute(
+      "aria-label",
+      `${tag.textContent}, ${on ? "해당" : "해당 없음"}`,
     );
-    if (!chosen) {
-      toast("해당 조건의 자료가 없어요.");
-      return;
-    }
-    await selectTime(chosen[0]);
-    toast(
-      `${year}년 ${months.length > 1 ? "여름(6~8월)" : month + "월"} ${kind === "weak" ? "약풍" : kind === "summer" ? "07시" : "전체"} 관측 중 그룹 격차가 가장 큰 시각이에요.`,
-    );
-  } catch {
-    toast("상황 자료를 불러오지 못했어요.");
-  } finally {
-    buttons.forEach((b) => (b.disabled = false));
   }
 }
 async function start() {
@@ -834,9 +819,6 @@ async function start() {
     $("about").hidden = !open;
     $("about-toggle").setAttribute("aria-expanded", open);
   };
-  document
-    .querySelectorAll("[data-preset]")
-    .forEach((b) => (b.onclick = () => preset(b.dataset.preset)));
   try {
     [state.stations, state.parks] = await Promise.all([
       json("assets/stations.json"),

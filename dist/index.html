@@ -80,10 +80,13 @@
         <label class="field"
           >시간<select id="hour" aria-label="조회 시간"></select
         ></label>
-        <div class="shortcuts">
-          <button data-preset="weak">약풍</button
-          ><button data-preset="summer">여름 아침</button
-          ><button data-preset="gap">격차가 큰 시간</button>
+        <div class="conditions" role="group" aria-labelledby="conditions-title">
+          <span id="conditions-title">조건</span>
+          <ul>
+            <li data-condition="weak">약풍</li>
+            <li data-condition="summer">여름 아침</li>
+            <li data-condition="gap">격차가 큰 시간</li>
+          </ul>
         </div>
       </section>
       <div id="status" role="status" aria-live="polite" class="loading">
@@ -298,11 +301,10 @@
             2023.01.01 01시–2025.12.31 23시, 26,303시간. 도시대기 측정소
             19곳(인접 9·비인접 10)을 표시합니다. 두 그룹의 대표 농도는 각 시각
             유효 측정값의 중앙값이며, 두 그룹 모두 유효 측정소가 5곳 이상일 때
-            비교합니다. 결측은 0으로 바꾸지 않습니다. 인접은 산업단지 경계
-            2km 이내로, 분석을 위한 분류입니다. 상황 바로 보기는 조회한 달 안에서
-            조건(약풍 &lt;1m/s, 여름 07시)에 맞는 시각 중 그룹 격차가 가장 큰
-            때를 선택합니다. 여름 아침은 조회한 달이 6~8월이 아니면 같은
-            연도의 여름 전체에서 찾습니다.
+            비교합니다. 결측은 0으로 바꾸지 않습니다. 인접은 산업단지 경계 2km
+            이내로, 분석을 위한 분류입니다. 조건 태그는 선택한 시각이 약풍(풍속
+            &lt;1m/s), 여름 아침(6~8월 07시), 격차가 큰 시간(인접 − 비인접
+            4μg/m³ 이상)에 해당하면 켜집니다.
           </p>
           <p>
             기상정보는 대구 ASOS 관측소 143의 값이며 개별 측정소의 날씨가

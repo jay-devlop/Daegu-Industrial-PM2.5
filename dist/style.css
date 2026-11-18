@@ -228,26 +228,6 @@ small {
   color: var(--muted);
   margin-bottom: 6px;
 }
-.shortcuts {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-}
-.shortcuts > span {
-  color: var(--muted);
-  margin-right: 4px;
-}
-.shortcuts button {
-  padding: 8px 12px;
-  border-radius: 20px;
-  background: #e8f0ef;
-  color: #04766f;
-  white-space: nowrap;
-}
-.shortcuts button:hover {
-  background: #d5ebe7;
-}
 .map-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 270px;
@@ -904,9 +884,6 @@ footer {
   .weather-card .weather-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  .shortcuts > span {
-    display: none;
-  }
   .inspection-layout {
     grid-template-columns: 1fr 1fr;
   }
@@ -953,10 +930,6 @@ footer {
     align-items: flex-start;
     flex-direction: column;
     gap: 18px;
-  }
-  .shortcuts {
-    width: 100%;
-    flex-wrap: wrap;
   }
   .map-layout {
     grid-template-columns: 1fr;
@@ -1207,12 +1180,6 @@ footer > .text-button {
 }
 
 /* Requested map and station-detail adjustments. */
-.datebar > .shortcuts {
-  margin-left: auto;
-  align-self: flex-end;
-  min-height: 44px;
-  justify-content: flex-end;
-}
 .datebar #hour,
 .station-picker select {
   appearance: none;
@@ -1362,13 +1329,6 @@ footer > .text-button {
   padding-right: 14px;
 }
 @media (max-width: 700px) {
-  .datebar > .shortcuts {
-    width: auto;
-    flex: 1;
-    min-width: 240px;
-    justify-content: flex-start;
-    margin-left: 0;
-  }
   .station-picker {
     gap: 28px;
   }
@@ -1380,5 +1340,57 @@ footer > .text-button {
   }
   #detail-weather .weather-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* 선택한 시각이 해당하는 조건 */
+.conditions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+}
+.conditions ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.conditions li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 22px;
+  background: #f1f3f5;
+  color: #9aa4af;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.conditions li::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+}
+.conditions li.on {
+  background: #e8f0ef;
+  color: #04766f;
+  font-weight: 600;
+}
+.conditions li.on::before {
+  background: #04766f;
+  border-color: #04766f;
+}
+@media (max-width: 700px) {
+  .conditions {
+    width: 100%;
+    margin-left: 0;
   }
 }
