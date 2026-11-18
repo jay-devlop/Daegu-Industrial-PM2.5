@@ -637,15 +637,19 @@ async function preset(kind) {
   const buttons = [...document.querySelectorAll("[data-preset]")];
   buttons.forEach((b) => (b.disabled = true));
   try {
-    const data = await loadYear($("date").value.slice(0, 4));
-    const candidates = data.filter((r) =>
-      kind === "weak"
-        ? r[3] !== null && r[3] < 1
-        : kind === "summer"
-          ? [6, 7, 8].includes(Number(r[0].slice(5, 7))) &&
-            r[0].slice(11, 13) === "07"
-          : true,
-    );
+    const year = $("date").value.slice(0, 4);
+    const month = Number($("date").value.slice(5, 7));
+    const data = await loadYear(year);
+    const summerMonths = [6, 7, 8];
+    // 여름 아침은 조회 월이 여름이 아니면 같은 연도의 여름(6~8월) 전체에서 찾는다.
+    const months =
+      kind === "summer" && !summerMonths.includes(month) ? summerMonths : [month];
+    const candidates = data.filter((r) => {
+      if (!months.includes(Number(r[0].slice(5, 7)))) return false;
+      if (kind === "weak") return r[3] !== null && r[3] < 1;
+      if (kind === "summer") return r[0].slice(11, 13) === "07";
+      return true;
+    });
     const chosen = candidates.reduce(
       (best, r) => (!best || r[1] - r[2] > best[1] - best[2] ? r : best),
       null,
@@ -656,7 +660,7 @@ async function preset(kind) {
     }
     await selectTime(chosen[0]);
     toast(
-      `${chosen[0].slice(0, 4)}년 ${kind === "weak" ? "약풍" : kind === "summer" ? "여름 07시" : "전체"} 관측 중 그룹 격차가 가장 큰 시각이에요.`,
+      `${year}년 ${months.length > 1 ? "여름(6~8월)" : month + "월"} ${kind === "weak" ? "약풍" : kind === "summer" ? "07시" : "전체"} 관측 중 그룹 격차가 가장 큰 시각이에요.`,
     );
   } catch {
     toast("상황 자료를 불러오지 못했어요.");
