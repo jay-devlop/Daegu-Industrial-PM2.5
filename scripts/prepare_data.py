@@ -1,11 +1,12 @@
-"""Build static, browser-readable records from the verified AirKorea extraction and ASOS join.
-No network or random/demo measurements. Negative air values remain missing.
+"""에어코리아 확정자료와 ASOS 기상자료를 합쳐 웹에서 읽을 JSON 파일로 만든다.
+실제 관측값만 사용하며, 음수 측정값은 결측으로 처리한다.
 """
 from pathlib import Path
-import csv, json, math, statistics, datetime, collections
+import csv, json, math, os, statistics, datetime, collections
 
 ROOT=Path(__file__).resolve().parents[1]
-STAGE=Path('/private/tmp/daegu-nearby.Pd69kW')
+# 원본 CSV가 있는 폴더. 다른 위치에 있으면 환경변수 DAEGU_STAGE_DIR로 지정한다.
+STAGE=Path(os.environ.get('DAEGU_STAGE_DIR', ROOT.parent/'stage'))
 WORK=ROOT.parent/'산업단지 인접·비인접 분석'
 OUT=ROOT/'dist/assets'
 OUT.mkdir(parents=True,exist_ok=True)
@@ -50,7 +51,7 @@ assert sum(map(len,years.values()))==26303
 for y,records in years.items():
     records.sort(key=lambda r:r[0])
     (OUT/f'data-{y}.json').write_text(json.dumps(records,ensure_ascii=False,separators=(',',':'),allow_nan=False))
-project=Path('/Users/yoonha/Desktop/프로젝트')
+project=Path(os.environ.get('DAEGU_PROJECT_DIR', ROOT.parents[1]))
 geo=json.loads(next(project.rglob('*24곳_한글.geojson')).read_text())
 def rounded(obj):
     if isinstance(obj,list):return [rounded(x) for x in obj]
